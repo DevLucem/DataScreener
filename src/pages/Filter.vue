@@ -6,7 +6,7 @@
       <div class="flex justify-between items-center border border-gray rounded-xl p-4">
         <h3 class="text-2xl">Create Filter</h3>
         <div>
-          <router-link to="/screen" class="uppercase border border-gray rounded-xl text-lg p-2 mx-2">Cancel</router-link>
+          <button class="uppercase border border-gray rounded-xl text-lg p-2 mx-2" @click="$emit('close')">Cancel</button>
           <button class="uppercase rounded-xl text-lg py-2 px-4 mx-2 gradient" @click="save()">Save</button>
         </div>
       </div>
@@ -69,31 +69,31 @@
 
         <input placeholder="New Condition" aria-label="none" class="input w-full" type="text" v-model="rule.name"/>
 
-        <div class="mt-4 flex justify-between space-x-8">
-          <div>
-            <label for="indicator" class="text-white mr-4">Indicator</label>
-            <select class="select" aria-label="none" name="Select" id="indicator" v-model="rule.indicator">
+        <div class="mt-4 flex space-x-8">
+          <div class="flex-1 flex items-center">
+            <label for="indicator" class="text-white mr-4 flex-1">Indicator</label>
+            <select class="select flex-1" aria-label="none" name="Select" id="indicator" v-model="rule.indicator">
               <option v-for="option in indicators" :key="option" :value="option">{{option}}</option>
             </select>
           </div>
-          <div>
-            <label for="timeframe" class="text-white mr-4">Timeframe</label>
-            <select class="select" aria-label="none" name="Select" id="timeframe" v-model="rule.tf">
+          <div class="flex-1 flex items-center">
+            <label for="timeframe" class="text-white mr-4 flex-1">Timeframe</label>
+            <select class="select flex-1" aria-label="none" name="Select" id="timeframe" v-model="rule.tf">
               <option v-for="option in timeframes" :key="option" :value="option">{{option}}</option>
             </select>
           </div>
         </div>
 
-        <div class="flex justify-between mt-4">
-          <div>
-            <label for="condition" class="text-white mr-4">Condition</label>
-            <select class="select" aria-label="none" name="Select" id="condition" v-model="rule.condition">
+        <div class="flex mt-4 space-x-8">
+          <div class="flex-1 flex items-center">
+            <label for="condition" class="text-white mr-4 flex-1">Condition</label>
+            <select class="select flex-1" aria-label="none" name="Select" id="condition" v-model="rule.condition">
               <option v-for="option in ['>', '<', '==', '>=', '<=']" :key="option" :value="option">{{option}}</option>
             </select>
           </div>
-          <div>
-            <label for="compare" class="text-white mr-4">Compare</label>
-            <select class="select" aria-label="none" name="Select" id="compare" v-model="rule.compare">
+          <div class="flex-1 flex items-center">
+            <label for="compare" class="text-white mr-4 flex-1">Compare</label>
+            <select class="select flex-1" aria-label="none" name="Select" id="compare" v-model="rule.compare">
               <option value="value">Value</option>
               <option v-for="option in indicators" :key="option" :value="option">{{option}}</option>
             </select>
@@ -239,7 +239,7 @@ export default {
           this.filter.created = this.FIELD_VALUE.serverTimestamp();
           this.filter.user_id = this.user.uid;
         }
-        this.FILTERS.doc(this.filter.id).set(this.filter).then( () => this.$router.push('/screen') )
+        this.FILTERS.doc(this.filter.id).set(this.filter).then( () => this.$emit("close") )
             .catch(e => window.alert(e))
       }
     },

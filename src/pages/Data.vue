@@ -1,15 +1,19 @@
 <template>
-  <div class="text-white my-12 mx-8">
+  <div class="text-white my-12 md:mx-8">
 
-    <h1 class="text-4xl font-bold">Data Screener <span class="text-xl font-normal text-gray font-bold"> / Data</span> </h1>
+    <h1 class="text-4xl font-bold text-center md:text-left">Data Screener <span class="text-xl font-normal text-gray font-bold"> / Data</span> </h1>
 
-    <div class="flex space-x-4 mt-4 py-8">
-      <button v-bind:class="{ button: selected===0, 'button-dull': selected!==0}" @click="selected=0">Symbols</button>
-      <button v-bind:class="{ button: selected===1, 'button-dull': selected!==1}" @click="selected=1">Indicators</button>
-      <button v-bind:class="{ button: selected===2, 'button-dull': selected!==2}" @click="selected=2">Timeframes</button>
-      <div class="flex-1 flex justify-end p-4">
-        <input aria-label="none" class="input w-1/2 mx-2" type="text" placeholder="Search" v-model="searched">
+    <div class="flex p-4 mt-8 justify-center md:justify-start">
+      <button class="m-2" v-bind:class="{ button: selected===0, 'button-dull': selected!==0}" @click="selected=0; searched=''">Symbols</button>
+      <button class="m-2" v-bind:class="{ button: selected===1, 'button-dull': selected!==1}" @click="selected=1; searched=''">Indicators</button>
+      <button class="m-2" v-bind:class="{ button: selected===2, 'button-dull': selected!==2}" @click="selected=2; searched=''">Timeframes</button>
+      <div class="flex-1 flex justify-end p-4 hidden md:block">
+        <input aria-label="none" class="input w-1/2 mx-2 border-0" type="text" placeholder="Search" v-model="searched">
       </div>
+    </div>
+
+    <div class="flex md:hidden -mt-6 mb-6 mx-4">
+      <input aria-label="none" class="input flex-1 mx-2 border-0" type="text" placeholder="Search" v-model="searched">
     </div>
 
     <div class="flex flex-wrap" v-if="selected===0">

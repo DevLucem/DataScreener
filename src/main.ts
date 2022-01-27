@@ -4,7 +4,7 @@ import './style.css'
 import {createRouter, createWebHistory} from 'vue-router'
 import firebase from "./firebase";
 
-import Home from './pages/Screen.vue';
+import Home from './pages/Home.vue';
 import Data from './pages/Data.vue';
 import Updates from './pages/Updates.vue';
 

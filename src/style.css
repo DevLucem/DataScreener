@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .title{
-    @apply text-white text-4xl font-bold
+    @apply text-white text-xl md:text-4xl font-bold
 }
 
 .card, .firebaseui-container {
@@ -15,7 +15,7 @@ img{
 }
 
 .input{
-    @apply bg-fore border-0 rounded rounded-xl p-2
+    @apply bg-fore rounded rounded-xl p-2
 }
 
 .icon{
@@ -27,7 +27,7 @@ img{
 }
 
 .tag{
-    @apply rounded-lg text-xl text-white px-4 m-4 p-4 border border-gray hover:text-primary
+    @apply rounded-lg text-sm md:text-xl text-white px-4 m-2 md:m-4 p-2 md:p-4 border border-gray hover:text-primary
 }
 
 .select{
@@ -39,18 +39,18 @@ img{
 }
 
 .selected{
-    @apply rounded-full gradient p-3;
+    @apply underline;
 }
 
 .button, .firebaseui-id-submit{
-    @apply text-2xl gradient rounded-xl py-2 px-4 my-4 text-center uppercase
+    @apply text-lg md:text-2xl gradient rounded-xl py-2 px-4 my-4 text-center uppercase
 }
 
 .button-dull{
-    @apply text-2xl bg-fore rounded-xl py-2 px-4 my-4 text-center uppercase
+    @apply text-lg md:text-2xl bg-fore rounded-xl py-2 px-4 my-4 text-center uppercase
 }
 
-.input:focus, .button-dull:hover, .button:hover, .icon:hover, select:hover, select:focus{
+.input:focus, .icon:hover, select:hover, select:focus, .tag:hover{
     @apply border border-primary transform duration-300;
     border-color: #00c97e;
     box-shadow: 0 0 10px #51ccda;
