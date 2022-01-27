@@ -16,7 +16,7 @@ Scan and filter any data from where you want with custom titles, data, timeframe
 
 
 # Setup
-```aidl
+```
 npm install
 cd functions
 npm install
@@ -24,7 +24,7 @@ firebase use your-target-project
 ```
 
 Update the [Firebase Config](src/firebase.ts) with the details of your project
-```aidl
+```
 apiKey: YOUR_API_KEY,
 projectId: YOUR_PROJECT_ID
 ```

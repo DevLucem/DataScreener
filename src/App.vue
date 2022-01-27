@@ -6,15 +6,17 @@
         <div class="px-4 h-1 w-full">
           <div class="bg-back h-1 w-full"></div>
         </div>
-        <router-link to="/home">Home</router-link>
-        <router-link to="/data">Data</router-link>
-        <router-link to="/updates">Updates</router-link>
+        <router-link v-bind:class="{selected: $route.path.includes('home')}" to="/home">Home</router-link>
+        <router-link v-bind:class="{selected: $route.path.includes('data')}" to="/data">Data</router-link>
+        <router-link v-bind:class="{selected: $route.path.includes('updates')}" to="/updates">Updates</router-link>
         <div class="flex-1 flex items-end">
           <button>Logout</button>
         </div>
       </div>
     </div>
-    <router-view class="ml-36 bg-darker flex-1 overflow-x-auto" :user="user" :filters="filters" :edit="filter" :data="data" :timeframes="timeframes" :indicators="indicators" v-on:edit="edit"/>
+    <div class="h-screen ml-28 overflow-y-auto w-full">
+      <router-view :user="user" :filters="filters" :edit="filter" :data="data" :timeframes="timeframes" :indicators="indicators" v-on:edit="edit"/>
+    </div>
   </div>
   <Auth v-else/>
 </template>
