@@ -11,19 +11,19 @@
         </div>
       </div>
 
-      <div class="flex space-x-4 mt-12" v-if="!condition">
+      <div class="flex flex-col mt-12 mx-6" v-if="!condition">
         <input type="text" aria-label="none" placeholder="Title" class="flex-1 input" v-model="filter.title">
-        <input type="text" aria-label="none" placeholder="Telegram" class="flex-none input" v-model="filter.alert">
+        <input type="text" aria-label="none" placeholder="Telegram Alert" class="mt-4 flex-none input" v-model="filter.alert">
       </div>
 
-      <input placeholder="Condition Name" aria-label="none" class="input w-full mt-4" type="text" v-model="rule.name"/>
+      <input v-if="condition && filter.conditions.length<1" placeholder="Condition Name" aria-label="none" class="input w-full mt-4" type="text" v-model="rule.name"/>
 
       <div v-for="(cond, x) in filter.conditions" class="w-full bg-back rounded-xl mt-4 p-4" v-bind:class="{'opacity-30': filter.conditions[x].disabled}">
 
         <div class="flex justify-between">
           <input aria-label="none" placeholder="Condition Name" class="input text-primary" v-model="filter.conditions[x].name"/>
           <div class="flex">
-            <button class="icon w-8 h-8 mr-4" @click="addRule(false, x)">
+            <button v-if="!condition" class="icon w-8 h-8 mr-4" @click="addRule(false, x)">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
@@ -54,14 +54,14 @@
             <input type="checkbox" class="checkbox w-5 h-5" v-model="filter.conditions[x].any">
             Match Any Rule?
           </label>
-          <label class="uppe ml-2">
+          <label class="uppe ml-2" v-if="!condition">
             Disabled
             <input type="checkbox" class="checkbox w-5 h-5" v-model="filter.conditions[x].disabled">
           </label>
         </div>
       </div>
 
-      <div class="mt-8">
+      <div class="mt-8" v-if="condition">
 
         <div class="mt-4 flex space-x-8">
           <div class="flex-1 flex items-center">
@@ -108,12 +108,13 @@
         </div>
       </div>
 
-      <label class="mt-16 mx-6 flex justify-between items-center" v-if="!condition">
+      <label class="mt-4 mx-6 flex justify-between items-center" v-if="!condition">
         <span>Match any of the grouped rules?</span>
-        <input class="checkbox h-5 w-24" type="checkbox" v-model="filter.any">
+        <input class="checkbox h-5 w-5" type="checkbox" v-model="filter.any">
       </label>
 
-      <textarea v-if="!condition" name="Message" class="input mx-6 mt-4" placeholder="Custom Message" aria-label="none" rows="2" v-model="filter.message"></textarea>
+      <div v-if="!condition" class="mt-4 mx-6">Alert Message</div>
+      <textarea v-if="!condition" name="Message" class="input mx-6" placeholder="Custom Message" aria-label="none" rows="2" v-model="filter.message"></textarea>
 
       <div class="flex mt-4 flex-wrap">
         <div v-for="s in filter.symbols.split(' ')">
@@ -235,16 +236,19 @@ export default {
       this.rule = {}
     },
     save(){
-      if ( (this.filter.title!=="" || this.condition) && this.filter.conditions.length>0 ){
+      if ( this.condition ? this.filter.conditions.length>0 : this.filter.title!==""){
         if (!this.filter.id && !this.condition) {
           this.filter.id = this.FILTERS.doc().id;
           this.filter.created = this.FIELD_VALUE.serverTimestamp();
           this.filter.user = this.user.uid;
         }
-        let condition = this.filter.conditions[0];
-        condition.id = this.CONDITIONS.doc().id;
-        condition.created = this.FIELD_VALUE.serverTimestamp();
-        condition.user = this.user.uid;
+        let condition = {};
+        if (this.condition){
+          condition = this.filter.conditions[0];
+          condition.id = this.CONDITIONS.doc().id;
+          condition.created = this.FIELD_VALUE.serverTimestamp();
+          condition.user = this.user.uid;
+        }
         (this.condition ? this.CONDITIONS.doc(condition.id).set(condition) : this.FILTERS.doc(this.filter.id).set(this.filter)).then( () => this.$emit("close") )
             .catch(e => window.alert(e))
       }

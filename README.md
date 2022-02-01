@@ -1,4 +1,4 @@
-# Screener App
+# TradingView Data Screener App
 
 Scan and filter any data from where you want with custom titles, data, timeframes and tags
 
@@ -8,35 +8,49 @@ Scan and filter any data from where you want with custom titles, data, timeframe
 
 [Firebase Functions](https://firebase.google.com/docs/functions) - Backend
 
-[Vue 3 With Vite](https://v3.vuejs.org/) - Frontend
+[Vue 3](https://v3.vuejs.org/) - Frontend
 
 [Tailwind CSS](https://tailwindcss.com/) - Frontend
 
 [Vue + Tailwind](https://tailwindcss.com/docs/guides/vue-3-vite) - Frontend
 
 
-# Setup
+### Setup
 ```
 npm install
-cd functions
-npm install
-firebase use your-target-project
 ```
 
-Update the [Firebase Config](src/firebase.ts) with the details of your project
+Update the [📂 Firebase Config](src/firebase.ts) file with the details of your project or create the file **KEYS.js**
 ```
-apiKey: YOUR_API_KEY,
-projectId: YOUR_PROJECT_ID
+export const FIREBASE = {
+    apiKey: "",
+    authDomain: "",
+    projectId: ""
+}
 ```
-
-# Running Dev Mode
-## Dev Mode
-### serve web app `vite`
-### run back server  `firebase serve --only functions`
-
-## Production Mode
-### build app `npm run build && cd dist && move index.html ../functions && cd..`
-### run server `firebase serve`
-
-# Deploy to Hosting
+### Dev Mode
+```
+npm run dev
+```
+### Production Mode
+```
+npm run build 
+```
+### Deploy
 `firebase deploy`
+
+
+## Disclaimer
+Some of the backed code is hidden for security reasons and cannot be exposed at the moment. Updates to this will be made momentarily
+
+
+```
+//  (                   (                            
+//  )\ )                )\ )                         
+// (()/(     (    )    (()/(   (          (     )    
+//  /(_))   ))\  /((    /(_)) ))\   (    ))\   (     
+// (_))_   /((_)(_))\  (_))  /((_)  )\  /((_)  )\  '
+//  |   \ (_))  _)((_) | |  (_))(  ((_)(_))  _((_))  
+//  | |) |/ -_) \ V /  | |__| || |/ _| / -_)| '  \()
+//  |___/ \___|  \_/   |____|\_,_|\__| \___||_|_|_| 
+```

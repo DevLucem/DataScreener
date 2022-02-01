@@ -12,18 +12,31 @@
 
       <div class="flex mt-12">
         <div class="flex -my-6">
-          <button class="button flex-1" @click="newFilter=true">Add</button>
+          <button class="button flex-1" @click="indicators.length<1?window.alert('There is no data to filter'):condition=true;newFilter=true;">Add</button>
         </div>
 
-        <div class="rounded rounded-lg border border-gray p-4 mx-4 max-w-lg w-64" v-for="c in conditions">
+        <div class="rounded rounded-lg border border-gray p-4 mx-4 max-w-lg w-64" v-for="c in conditions" draggable="true" v-on:dragstart="adding=c">
           <div class="flex justify-between">
-            <h3>{{c.title}}</h3>
+            <h3 class="font-bold">{{c.name}}</h3>
             <button @click="removeCondition(c.id)">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="current" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
+
+          <ul class="bg-fore rounded-full mt-2 w-full">
+            <li class="flex items-center justify-between mx-2 text-xs" v-for="r in c.rules">
+              <div>
+                ({{r.indicator}}{{r.tf}}) {{r.condition}} ({{r.compare}}{{r.value}})
+              </div>
+              <button class="icon w-4 h-4 my-1" @click="CONDITIONS.doc(c.id).update({rules: FIELD_VALUE.arrayRemove(r)})">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="current" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </li>
+          </ul>
         </div>
 
       </div>
@@ -31,14 +44,15 @@
 
 
     <div class="mt-24 w-full">
-      <h2 class="button-dull max-w-lg">Filters</h2>
+      <h2 v-on:drop="FILTERS.doc(dragging).update({disabled: false}); dragging=null" ondragover="return false" class="button-dull max-w-lg">Filters</h2>
 
       <div class="flex mt-12">
         <div class="flex -my-6">
-          <button class="button flex-1" @click="newFilter=true">Add</button>
+          <button class="button flex-1" @click="condition=false;newFilter=true">Add</button>
         </div>
 
-        <div class="rounded rounded-lg border border-gray p-4 mx-4 max-w-lg w-64" v-for="f in filters">
+        <div class="rounded rounded-lg border border-gray p-4 mx-4 max-w-lg w-64" v-for="f in filters.filter( fil => !fil.disabled)"
+             draggable="true" v-on:dragstart="dragging=f.id" v-on:drop="adding?FILTERS.doc(f.id).update({conditions: FIELD_VALUE.arrayUnion(adding)}).then(()=>this.adding=null):''" ondragover="return false">
           <div class="flex justify-between">
             <h3>{{f.title}}</h3>
             <button @click="removeFilter(f.id)">
@@ -47,14 +61,46 @@
               </svg>
             </button>
           </div>
+
+          <ul class="bg-fore rounded-xl mt-2 w-full">
+            <li class="flex items-center justify-between mx-2 mt-1" v-for="c in f.conditions">
+              <div>
+                {{c.name}}
+              </div>
+              <button class="icon w-6 h-6 my-1" @click="FILTERS.doc(f.id).update({conditions: FIELD_VALUE.arrayRemove(c)})">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="current" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </li>
+          </ul>
+
           <div>{{f.symbols}}</div>
         </div>
 
       </div>
     </div>
 
+    <div class="mt-24 w-full opacity-70" v-on:drop="FILTERS.doc(dragging).update({disabled: true}); dragging=null" ondragover="return false">
+      <h2 class="button-dull max-w-lg">Disabled</h2>
+      <div class="mt-12 rounded rounded-lg border border-gray p-4 mx-4 max-w-lg w-64" v-for="f in filters.filter( fil => fil.disabled)" draggable="true" v-on:dragstart="dragging=f.id">
+        <div class="flex justify-between">
+          <h3>{{f.title}} {{f.id}} </h3>
+          <button @click="removeFilter(f.id)">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="current" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div>
+          <span v-for="c in f.conditions">{{c.name}},</span>
+        </div>
+        <div>{{f.symbols}}</div>
+      </div>
+    </div>
+
     <div class="absolute top-0 w-full bg-back -mt-24 md:mt-0" v-if="newFilter">
-      <Filter :condition="true" v-on:close="newFilter=false" :user="user" :data="data" :timeframes="timeframes" :indicators="indicators"/>
+      <Filter :condition="condition" v-on:close="newFilter=false" :user="user" :data="data" :timeframes="timeframes" :indicators="indicators"/>
     </div>
 
   </div>
@@ -68,7 +114,10 @@ export default {
   props: ['indicators', 'timeframes', 'data', 'edit', 'user', 'filters', 'conditions'],
   data(){
     return {
-      newFilter: false
+      newFilter: false,
+      condition: false,
+      dragging: "",
+      adding: null
     }
   },
   methods: {
