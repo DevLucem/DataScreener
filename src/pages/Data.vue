@@ -7,8 +7,8 @@
       <button class="m-2" v-bind:class="{ button: selected===0, 'button-dull': selected!==0}" @click="selected=0; searched=''">Symbols</button>
       <button class="m-2" v-bind:class="{ button: selected===1, 'button-dull': selected!==1}" @click="selected=1; searched=''">Indicators</button>
       <button class="m-2" v-bind:class="{ button: selected===2, 'button-dull': selected!==2}" @click="selected=2; searched=''">Timeframes</button>
-      <div class="flex-1 flex justify-end p-4 hidden md:block">
-        <input aria-label="none" class="input w-1/2 mx-2 border-0" type="text" placeholder="Search" v-model="searched">
+      <div class="flex-1 flex justify-end items-center p-4">
+        <input aria-label="none" class="input min-w-[32px] w-1/2 mx-2 border-0 hidden md:inline-block" type="text" placeholder="Search" v-model="searched">
       </div>
     </div>
 
@@ -17,7 +17,7 @@
     </div>
 
     <div class="flex flex-wrap" v-if="selected===0">
-      <div class="tag flex flex-row" v-for="s in data.filter(x => x.symbol.toLowerCase().includes(searched.toLowerCase()))">
+      <div class="tag flex flex-row" v-for="s in filterData(data, 'symbol')">
         {{s.symbol}}
         <button class="ml-2 hover:text-white" @click="removeSymbol(s.symbol)">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="current" viewBox="0 0 24 24" stroke="currentColor">
@@ -28,7 +28,7 @@
     </div>
 
     <div class="flex flex-wrap" v-if="selected===1">
-      <div class="tag flex flex-row" v-for="i in indicators.filter(x => x.toLowerCase().includes(searched.toLowerCase()))">
+      <div class="tag flex flex-row" v-for="i in filterData(indicators)">
         {{i}}
         <button class="ml-2 hover:text-white" @click="removeIndicator(i)">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="current" viewBox="0 0 24 24" stroke="currentColor">
@@ -39,7 +39,7 @@
     </div>
 
     <div class="flex flex-wrap" v-if="selected===2">
-      <div class="tag flex flex-row" v-for="tf in timeframes.filter(x => x.toLowerCase().includes(searched.toLowerCase()))">
+      <div class="tag flex flex-row" v-for="tf in filterData(timeframes)">
         {{tf}}
         <button class="ml-2 hover:text-white" @click="removeTimeframe(tf)">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="current" viewBox="0 0 24 24" stroke="currentColor">
@@ -52,7 +52,7 @@
   </div>
 </template>
 
-<script>
+<script lang="js">
 export default {
   name: "Data",
   props: ['data', 'indicators', 'timeframes'],
@@ -63,6 +63,7 @@ export default {
     }
   },
   methods: {
+    filterData(d, v=null){return d.filter(x => (v? x.symbol: x).toLowerCase().includes(this.searched.toLowerCase()))},
     removeSymbol(symbol){this.DATA.doc(symbol).delete()},
     removeIndicator(indicator){
       let batch = this.FIRESTORE.batch();

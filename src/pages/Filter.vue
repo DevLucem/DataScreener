@@ -4,17 +4,19 @@
 
     <div class="card p-4 max-w-lg m-12">
       <div class="flex justify-between items-center border border-gray rounded-xl p-4">
-        <h3 class="text-2xl">Create Filter</h3>
+        <h3 class="text-2xl mr-8">New {{condition?'Condition':'Filter'}}</h3>
         <div>
           <button class="uppercase border border-gray rounded-xl text-lg p-2 mx-2" @click="$emit('close')">Cancel</button>
           <button class="uppercase rounded-xl text-lg py-2 px-4 mx-2 gradient" @click="save()">Save</button>
         </div>
       </div>
 
-      <div class="flex space-x-4 mt-12">
+      <div class="flex space-x-4 mt-12" v-if="!condition">
         <input type="text" aria-label="none" placeholder="Title" class="flex-1 input" v-model="filter.title">
         <input type="text" aria-label="none" placeholder="Telegram" class="flex-none input" v-model="filter.alert">
       </div>
+
+      <input placeholder="Condition Name" aria-label="none" class="input w-full mt-4" type="text" v-model="rule.name"/>
 
       <div v-for="(cond, x) in filter.conditions" class="w-full bg-back rounded-xl mt-4 p-4" v-bind:class="{'opacity-30': filter.conditions[x].disabled}">
 
@@ -59,15 +61,7 @@
         </div>
       </div>
 
-
-      <label class="mt-16">
-        <input class="checkbox h-6 w-6" type="checkbox" v-model="filter.any">
-        Match any of the grouped rules?
-      </label>
-
       <div class="mt-8">
-
-        <input placeholder="New Condition" aria-label="none" class="input w-full" type="text" v-model="rule.name"/>
 
         <div class="mt-4 flex space-x-8">
           <div class="flex-1 flex items-center">
@@ -114,6 +108,12 @@
         </div>
       </div>
 
+      <label class="mt-16 mx-6 flex justify-between items-center" v-if="!condition">
+        <span>Match any of the grouped rules?</span>
+        <input class="checkbox h-5 w-24" type="checkbox" v-model="filter.any">
+      </label>
+
+      <textarea v-if="!condition" name="Message" class="input mx-6 mt-4" placeholder="Custom Message" aria-label="none" rows="2" v-model="filter.message"></textarea>
 
       <div class="flex mt-4 flex-wrap">
         <div v-for="s in filter.symbols.split(' ')">
@@ -132,16 +132,17 @@
 <script>
 export default {
   name: "Filter",
-  props: ['indicators', 'timeframes', 'data', 'edit', 'user'],
+  props: ['indicators', 'timeframes', 'data', 'edit', 'user', 'condition'],
   data(){return {
     rule: {
       compare: "value",
-      name: "Default"
+      name: ""
     },
     filter: {
-      title: "Title",
+      title: "My Filter",
       conditions: [],
       symbols: "",
+      message: "{{symbol}}\n"
     },
     hoveringOverBasket: {}
   }},
@@ -152,6 +153,7 @@ export default {
       this.rule.name = "";
     }
   },
+
   methods: {
     filtered(symbol){
       const compare = (a, operator, b) => {
@@ -217,7 +219,7 @@ export default {
           ['indicator', 'tf', 'condition', 'compare', 'value'].forEach(v => verify = verify && v in this.rule && this.rule[v] !== '')
           if (!verify) return;
           let condition = this.rule.name ? {name: this.rule.name, rules: []} : this.filter.conditions.pop()
-          this.rule.name = "";
+          // this.rule.name = ""; todo removed not to reset
           condition.rules.push(this.rule)
           this.filter.conditions.push(condition)
         }else this.filter.symbols = "";
@@ -233,13 +235,17 @@ export default {
       this.rule = {}
     },
     save(){
-      if ( this.filter.title!=="" && this.filter.conditions.length>0 ){
-        if (!this.filter.id) {
+      if ( (this.filter.title!=="" || this.condition) && this.filter.conditions.length>0 ){
+        if (!this.filter.id && !this.condition) {
           this.filter.id = this.FILTERS.doc().id;
           this.filter.created = this.FIELD_VALUE.serverTimestamp();
-          this.filter.user_id = this.user.uid;
+          this.filter.user = this.user.uid;
         }
-        this.FILTERS.doc(this.filter.id).set(this.filter).then( () => this.$emit("close") )
+        let condition = this.filter.conditions[0];
+        condition.id = this.CONDITIONS.doc().id;
+        condition.created = this.FIELD_VALUE.serverTimestamp();
+        condition.user = this.user.uid;
+        (this.condition ? this.CONDITIONS.doc(condition.id).set(condition) : this.FILTERS.doc(this.filter.id).set(this.filter)).then( () => this.$emit("close") )
             .catch(e => window.alert(e))
       }
     },

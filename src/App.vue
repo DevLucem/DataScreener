@@ -1,6 +1,6 @@
 <template>
   <div v-if="user!==null" class="md:flex bg-back">
-    <div class="flex fixed w-full md:w-32 text-white md:h-full">
+    <div class="flex fixed w-full md:w-32 text-white md:h-full z-10">
       <div class="w-full flex justify-between md:flex-col m-4 bg-fore rounded-3xl p-4 md:py-8 items-center md:space-y-12">
         <img class="h-12 w-12 md:w-16 md:h-16 md:m-2" src="./assets/logo.png" alt="Logo">
         <div class="px-4 h-1 w-full hidden md:block">
@@ -10,12 +10,12 @@
         <router-link v-bind:class="{selected: $route.path.includes('data')}" to="/data">Data</router-link>
         <router-link v-bind:class="{selected: $route.path.includes('updates')}" to="/updates">Updates</router-link>
         <div class="md:flex-1 flex items-end">
-          <button>Logout</button>
+          <button @click="logout" >Logout</button>
         </div>
       </div>
     </div>
     <div class="h-screen pt-24 md:pt-0 md:ml-28 overflow-y-auto w-full">
-      <router-view :user="user" :filters="filters" :edit="filter" :data="data" :timeframes="timeframes" :indicators="indicators" v-on:edit="edit"/>
+      <router-view :user="user" :conditions="conditions" :filters="filters" :edit="filter" :data="data" :timeframes="timeframes" :indicators="indicators" v-on:edit="edit"/>
     </div>
   </div>
   <Auth v-else/>
@@ -23,7 +23,7 @@
 
 <script>
 import Auth from "./components/Auth.vue";
-let listen_data; let listen_filters;
+let listen_data; let listen_filters; let listen_conditions;
 export default {
   name: "App",
   components: {Auth},
@@ -32,6 +32,7 @@ export default {
       data: [],
       indicators: [],
       timeframes: [],
+      conditions: [],
       filter: null,
       user: null
     }
@@ -41,14 +42,19 @@ export default {
       this.user = user;
       if (user) {
         if (!listen_filters)
-          listen_filters = this.FILTERS.where("user_id", "==", user.uid).onSnapshot( docs => {
-            console.log(docs.size)
+          listen_filters = this.FILTERS.where("user", "==", user.uid).onSnapshot( docs => {
             this.filters = []; docs.forEach( doc => {
               this.filters.push(doc.data())
             })
           })
+        if (!listen_conditions)
+          listen_conditions = this.CONDITIONS.where("user", "==", user.uid).onSnapshot( docs => {
+            this.conditions = []; docs.forEach( doc => {
+              this.conditions.push(doc.data())
+            })
+          })
         if (!listen_data)
-          listen_data = this.DATA.onSnapshot( docs => {
+          listen_data = this.DATA.where("user", "==", user.uid).onSnapshot( docs => {
             this.data = []; this.indicators = []; this.timeframes = [];
             docs.forEach( doc => {
               let data = doc.data();
@@ -70,6 +76,9 @@ export default {
     edit(e){
       this.filter=e;
       if (e) this.$router.push('/filter')
+    },
+    logout(){
+      this.FIREBASE.auth().signOut().finally(()=>window.location.reload())
     }
   }
 }

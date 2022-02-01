@@ -1,7 +1,8 @@
 import firebase from "firebase/app";
 import  "firebase/firestore";
 import "firebase/auth";
-import {FIREBASE} from "./KEYS.js";
+// @ts-ignore
+import {FIREBASE, FIREBASE_LIVE} from "./KEYS.js";
 
 firebase.initializeApp(FIREBASE);
 
@@ -24,8 +25,9 @@ export default {
                 FIREBASE: firebase,
                 FIELD_VALUE: firebase.firestore.FieldValue,
                 FIRESTORE: firebase.firestore(),
-                DATA: database.collection('data'),
+                DATA: database.collection('symbols'),
                 FILTERS: database.collection('filters'),
+                CONDITIONS: database.collection('conditions'),
             }},
             methods: {
                 DatabaseVerify(type: String /*data being stored in database*/ , data: Object){

@@ -39,7 +39,7 @@ img{
 }
 
 .selected{
-    @apply underline;
+    @apply underline font-bold text-primary;
 }
 
 .button, .firebaseui-id-submit{
@@ -50,7 +50,7 @@ img{
     @apply text-lg md:text-2xl bg-fore rounded-xl py-2 px-4 my-4 text-center uppercase
 }
 
-.input:focus, .icon:hover, select:hover, select:focus, .tag:hover{
+.input:focus, .icon:hover, select:hover, select:focus, .tag:hover, .checkbox{
     @apply border border-primary transform duration-300;
     border-color: #00c97e;
     box-shadow: 0 0 10px #51ccda;
