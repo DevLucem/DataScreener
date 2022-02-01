@@ -50,7 +50,23 @@ npm run build
 Some backed code is hidden for security reasons and cannot be exposed at the moment. Updates to this will be made momentarily
 
 
+<center>
+
 ## Made with ♥
+```
+(                   (                            
+)\ )                )\ )                         
+(()/(     (    )    (()/(   (          (     )    
+/(_))   ))\  /((    /(_)) ))\   (    ))\   (     
+(_))_   /((_)(_))\  (_))  /((_)  )\  /((_)  )\  '
+|   \ (_))  _)((_) | |  (_))(  ((_)(_))  _((_))  
+| |) |/ -_) \ V /  | |__| || |/ _| / -_)| '  \()
+|___/ \___|  \_/   |____|\_,_|\__| \___||_|_|_|  
+```
+
+</center>
+
+
 ```
 (                   (                            
 )\ )                )\ )                         
