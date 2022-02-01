@@ -1,9 +1,9 @@
 <template>
-  <div class="h-screen backy w-full flex flex-col justify-center items-center">
-    <div class="flex items-center">
-      <img class="mr-2" src="../assets/logo.png" alt="Logo">
-      <h1 class="title">Data Screener</h1>
-    </div>
+  <div class="h-screen bg-back w-full flex flex-col justify-center items-center">
+
+    <img class="m-4 rounded-full p-4 w-24 h-24 bg-fore" src="../assets/logo.png" alt="Logo">
+    <h1 class="title">Data Screener</h1>
+
     <div class="card m-12 py-12 px-24">
       <h2 class="text-center text-2xl mb-4 font-bold">LOG IN</h2>
       <button v-if="loading" class="button px-4">Loading...</button>
@@ -59,9 +59,19 @@ export default {
     if (ui){
       ui.delete()
     }
-  }
+  },
+
 }
 </script>
 
 <style>
+.firebaseui-title {
+  @apply hidden;
+}
+.firebaseui-phone-number, .firebaseui-id-country-selector-code, .firebaseui-input, .firebaseui-label{
+  @apply text-white !important;
+}
+.firebaseui-button{
+  @apply rounded-xl !important;
+}
 </style>

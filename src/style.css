@@ -14,8 +14,8 @@ img{
     @apply rounded-full w-16 h-16
 }
 
-.input{
-    @apply bg-fore rounded rounded-xl p-2
+.input, .firebaseui-input{
+    @apply bg-fore rounded rounded-xl p-2 text-white;
 }
 
 .icon{
@@ -42,8 +42,8 @@ img{
     @apply underline font-bold text-primary;
 }
 
-.button, .firebaseui-id-submit{
-    @apply text-lg md:text-2xl gradient rounded-xl py-2 px-4 my-4 text-center uppercase
+.button{
+    @apply text-lg md:text-2xl gradient rounded-xl py-2 px-4 my-4 text-center uppercase;
 }
 
 .button-dull{
@@ -55,9 +55,8 @@ img{
     border-color: #00c97e;
     box-shadow: 0 0 10px #51ccda;
 }
-
-.gradient {
-    background: linear-gradient(45deg, #51ccda, #00c97e);
+.gradient, .firebaseui-button{
+    background: linear-gradient(45deg, #51ccda, #00c97e) !important;
 }
 
 .backy {
