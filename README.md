@@ -3,6 +3,12 @@
 Scan and filter any data from where you want with custom titles, data, timeframes and tags
 
 
+## [Demo - Data-Screener](https://data-screener.web.app/)
+
+![Screenshot](https://user-images.githubusercontent.com/22216995/151967710-8719cfaf-a18d-4c88-8830-ec5550d5b9e1.png)
+
+
+
 ### Learn Libraries
 [Firebase Hosting](https://firebase.google.com/docs) - Website
 
@@ -41,16 +47,22 @@ npm run build
 
 
 ## Disclaimer
-Some of the backed code is hidden for security reasons and cannot be exposed at the moment. Updates to this will be made momentarily
+Some backed code is hidden for security reasons and cannot be exposed at the moment. Updates to this will be made momentarily
 
 
+
+<div style="font-style: italic; text-align: center;" markdown="1">
+
+## Made with ♥
 ```
-//  (                   (                            
-//  )\ )                )\ )                         
-// (()/(     (    )    (()/(   (          (     )    
-//  /(_))   ))\  /((    /(_)) ))\   (    ))\   (     
-// (_))_   /((_)(_))\  (_))  /((_)  )\  /((_)  )\  '
-//  |   \ (_))  _)((_) | |  (_))(  ((_)(_))  _((_))  
-//  | |) |/ -_) \ V /  | |__| || |/ _| / -_)| '  \()
-//  |___/ \___|  \_/   |____|\_,_|\__| \___||_|_|_| 
+   (                   (                            
+  )\ )                )\ )                         
+  (()/(     (    )    (()/(   (          (     )    
+  /(_))   ))\  /((    /(_)) ))\   (    ))\   (     
+  (_))_   /((_)(_))\  (_))  /((_)  )\  /((_)  )\  '
+  |   \ (_))  _)((_) | |  (_))(  ((_)(_))  _((_))  
+ | |) |/ -_) \ V /  | |__| || |/ _| / -_)| '  \()
+|___/ \___|  \_/   |____|\_,_|\__| \___||_|_|_|
 ```
+#### Dev Lucem
+</div>
