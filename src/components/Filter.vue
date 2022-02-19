@@ -241,6 +241,7 @@ export default {
           this.filter.id = this.FILTERS.doc().id;
           this.filter.created = this.FIELD_VALUE.serverTimestamp();
           this.filter.user = this.user.uid;
+          this.filter.disabled = true;
         }
         let condition = {};
         if (this.condition){

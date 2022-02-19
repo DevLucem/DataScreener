@@ -2,7 +2,7 @@ import firebase from "firebase/app";
 import  "firebase/firestore";
 import "firebase/auth";
 // @ts-ignore
-import {FIREBASE, FIREBASE_LIVE} from "./KEYS.js";
+import {FIREBASE} from "./KEYS.js";
 
 firebase.initializeApp(FIREBASE);
 
