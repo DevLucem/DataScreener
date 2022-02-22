@@ -18,7 +18,7 @@
 
         <div class="rounded rounded-lg border border-gray p-4 mx-4 max-w-lg w-64" v-for="c in conditions" draggable="true" v-on:dragstart="adding=c">
           <div class="flex justify-between">
-            <h3 class="font-bold overflow-x-auto">{{c.name}}</h3>
+            <h3 class="font-bold overflow-x-auto">{{c.name}} {{c.id}}</h3>
             <div class="relative group">
               <button>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -26,9 +26,8 @@
                 </svg>
               </button>
               <ul class="overflow-x-auto absolute ml-3 -mt-2 gradient p-2 rounded-b-xl rounded-r-xl invisible group-hover:visible">
-                <li>Edit</li>
+                <li @click="condition=true;newFilter=true;edit={conditions: [c]}">Edit</li>
                 <li @click="removeCondition(c.id)">Delete</li>
-                <li class="mt-2">Move</li>
               </ul>
             </div>
           </div>
@@ -67,9 +66,9 @@
                 </svg>
               </button>
               <ul class="overflow-x-auto absolute ml-3 -mt-2 gradient p-2 rounded-b-xl rounded-r-xl invisible group-hover:visible">
-                <li>Edit</li>
+                <li @click="edit=f;newFilter=true;">Edit</li>
                 <li @click="removeFilter(f.id)">Delete</li>
-                <li class="mt-2">Move</li>
+                <li @click="FILTERS.doc(dragging).update({disabled: false});">Active</li>
               </ul>
             </div>
           </div>
@@ -93,18 +92,26 @@
       </div>
     </div>
 
+
     <div class="mt-24 w-full">
       <h2 v-on:drop="FILTERS.doc(dragging).update({disabled: false}); dragging=null" ondragover="return false" class="button-dull max-w-lg">Active</h2>
 
-      <div class="overflow-x-auto rounded rounded-lg border border-gray p-4 mx-4 max-w-lg w-64" v-for="f in filters.filter( fil => !fil.disabled)"
+      <div class="rounded rounded-lg border border-gray p-4 mx-4 max-w-lg w-64" v-for="f in filters.filter( fil => !fil.disabled)"
            draggable="true" v-on:dragstart="dragging=f.id" v-on:drop="adding?FILTERS.doc(f.id).update({conditions: FIELD_VALUE.arrayUnion(adding)}).then(()=>this.adding=null):''" ondragover="return false">
         <div class="flex justify-between">
-          <h3>{{f.title}}</h3>
-          <button @click="removeFilter(f.id)">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="current" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <h3 class="overflow-x-auto">{{f.title}}</h3>
+          <div class="relative group">
+            <button>
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+              </svg>
+            </button>
+            <ul class="overflow-x-auto absolute ml-3 -mt-2 gradient p-2 rounded-b-xl rounded-r-xl invisible group-hover:visible">
+              <li @click="edit=f;newFilter=true;">Edit</li>
+              <li @click="removeFilter(f.id)">Delete</li>
+              <li @click="FILTERS.doc(dragging).update({disabled: true});">Disable</li>
+            </ul>
+          </div>
         </div>
 
         <ul class="bg-fore rounded-xl mt-2 w-full">
@@ -124,8 +131,9 @@
       </div>
     </div>
 
+
     <div class="absolute top-0 w-full bg-back -mt-24 md:mt-0" v-if="newFilter">
-      <Filter :condition="condition" v-on:close="newFilter=false" :user="user" :data="data" :timeframes="timeframes" :indicators="indicators"/>
+      <Filter :edit="edit" :condition="condition" v-on:close="newFilter=false; edit=null; condition=false" :user="user" :data="data" :timeframes="timeframes" :indicators="indicators"/>
     </div>
 
   </div>
@@ -136,13 +144,15 @@ import Filter from "../components/Filter.vue";
 export default {
   name: "Home",
   components: {Filter},
-  props: ['indicators', 'timeframes', 'data', 'edit', 'user', 'filters', 'conditions'],
+  props: ['indicators', 'timeframes', 'data', 'user', 'filters', 'conditions'],
   data(){
     return {
       newFilter: false,
       condition: false,
+      conditionEdit: null,
       dragging: "",
-      adding: null
+      adding: null,
+      edit: null
     }
   },
   methods: {

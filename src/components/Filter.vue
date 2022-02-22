@@ -18,7 +18,7 @@
 
       <input v-if="condition && filter.conditions.length<1" placeholder="Condition Name" aria-label="none" class="input w-full mt-4" type="text" v-model="rule.name"/>
 
-      <div v-for="(cond, x) in filter.conditions" class="w-full bg-back rounded-xl mt-4 p-4" v-bind:class="{'opacity-30': filter.conditions[x].disabled}">
+      <div v-if="condition" v-for="(cond, x) in filter.conditions" class="w-full bg-back rounded-xl mt-4 p-4" v-bind:class="{'opacity-30': filter.conditions[x].disabled}">
 
         <div class="flex justify-between">
           <input aria-label="none" placeholder="Condition Name" class="input text-primary" v-model="filter.conditions[x].name"/>
@@ -150,7 +150,10 @@ export default {
   created() {
     if (this.edit){
       this.filter = this.edit;
-      this.$emit('edit', null);
+      if (this.condition){
+        this.filter.symbols = "";
+      }
+      console.log(this.filter.conditions)
       this.rule.name = "";
     }
   },
@@ -246,9 +249,12 @@ export default {
         let condition = {};
         if (this.condition){
           condition = this.filter.conditions[0];
-          condition.id = this.CONDITIONS.doc().id;
-          condition.created = this.FIELD_VALUE.serverTimestamp();
-          condition.user = this.user.uid;
+          if (!condition.id){
+            console.log(condition, "has no ID")
+            condition.id = this.CONDITIONS.doc().id;
+            condition.created = this.FIELD_VALUE.serverTimestamp();
+            condition.user = this.user.uid;
+          }
         }
         (this.condition ? this.CONDITIONS.doc(condition.id).set(condition) : this.FILTERS.doc(this.filter.id).set(this.filter)).then( () => this.$emit("close") )
             .catch(e => window.alert(e))
