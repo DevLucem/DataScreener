@@ -222,6 +222,8 @@ export default {
           let verify = true;
           ['indicator', 'tf', 'condition', 'compare', 'value'].forEach(v => verify = verify && v in this.rule && this.rule[v] !== '')
           if (!verify) return;
+          console.log("Updating filter Conditions", this.rule)
+          if ( (!this.rule.name || this.rule.name.length===0) && this.filter.conditions.length<1 ) return;
           let condition = this.rule.name ? {name: this.rule.name, rules: []} : this.filter.conditions.pop()
           // this.rule.name = ""; todo removed not to reset
           condition.rules.push(this.rule)
