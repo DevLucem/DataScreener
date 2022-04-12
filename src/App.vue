@@ -6,11 +6,33 @@
         <div class="px-4 h-1 w-full hidden md:block">
           <div class="bg-back h-1 w-full"></div>
         </div>
-        <router-link v-bind:class="{selected: $route.path.includes('home')}" to="/home">Home</router-link>
-        <router-link v-bind:class="{selected: $route.path.includes('data')}" to="/data">Data</router-link>
-        <router-link v-bind:class="{selected: $route.path.includes('updates')}" to="/updates">Updates</router-link>
+        <router-link v-bind:class="{selected: $route.path.includes('home')}" to="/home">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+            <title>Home Dashboard</title>
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+          </svg>
+        </router-link>
+        <router-link v-bind:class="{selected: $route.path.includes('data')}" to="/data">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+            <title>Analysed Data</title>
+            <path d="M3 12v3c0 1.657 3.134 3 7 3s7-1.343 7-3v-3c0 1.657-3.134 3-7 3s-7-1.343-7-3z" />
+            <path d="M3 7v3c0 1.657 3.134 3 7 3s7-1.343 7-3V7c0 1.657-3.134 3-7 3S3 8.657 3 7z" />
+            <path d="M17 5c0 1.657-3.134 3-7 3S3 6.657 3 5s3.134-3 7-3 7 1.343 7 3z" />
+          </svg>
+        </router-link>
+        <router-link v-bind:class="{selected: $route.path.includes('updates')}" to="/updates">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+            <title>Recent Updates</title>
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+          </svg>
+        </router-link>
         <div class="md:flex-1 flex items-end">
-          <button @click="logout" >Logout</button>
+          <button @click="logout" >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <title>Sign Out</title>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
         </div>
       </div>
     </div>
@@ -23,10 +45,11 @@
 
 <script>
 import Auth from "./components/Auth.vue";
+import Test from "./components/Test.vue";
 let listen_data; let listen_filters; let listen_conditions;
 export default {
   name: "App",
-  components: {Auth},
+  components: {Test, Auth},
   data() {return {
       filters: [],
       data: [],
@@ -49,6 +72,7 @@ export default {
           })
         if (!listen_conditions)
           listen_conditions = this.CONDITIONS.where("user", "==", user.uid).onSnapshot( docs => {
+            console.log(docs.size, 'conditions size', user.uid)
             this.conditions = []; docs.forEach( doc => {
               this.conditions.push(doc.data())
             })

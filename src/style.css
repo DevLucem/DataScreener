@@ -43,7 +43,8 @@ img{
 }
 
 .button{
-    @apply text-lg md:text-2xl gradient rounded-xl py-2 px-4 my-4 text-center uppercase;
+    @apply text-lg md:text-2xl rounded-xl py-2 px-4 my-4 text-center uppercase;
+    background: linear-gradient(45deg, #51ccda, #00c97e) !important;
 }
 
 .button-dull{

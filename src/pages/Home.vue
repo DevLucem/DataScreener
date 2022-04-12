@@ -7,16 +7,21 @@
       <h1 class="tag text-center">Webhook: <span class="select-all italic text-gray">{{getWH()}}</span></h1>
     </div>
 
-
     <div class="mt-16 w-full">
-      <h2 class="button-dull max-w-lg">Conditions</h2>
+      <h2 class="button-dull w-full flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" viewBox="0 0 20 20" fill="currentColor" @click="showConditions=!showConditions">
+          <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+        <span class="mx-auto font-bold text-primary flex-1 cursor-pointer" @click="showConditions=!showConditions">Conditions</span>
+        <button @click="indicators.length<1?window.alert('There is no data to filter'):condition=true;newFilter=true;">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </h2>
 
-      <div class="flex mt-12 flex-wrap space-y-4">
-        <div class="flex -my-6">
-          <button class="button flex-1" @click="indicators.length<1?window.alert('There is no data to filter'):condition=true;newFilter=true;">Add</button>
-        </div>
-
-        <div class="rounded rounded-lg border border-gray p-4 mx-4 max-w-lg w-64" v-for="c in conditions" draggable="true" v-on:dragstart="adding=c">
+      <div class="mt-12 flex flex-wrap" v-if="showConditions">
+        <div class="rounded rounded-lg border border-gray p-4 m-2" v-for="c in conditions" draggable="true" v-on:dragstart="adding=c.id" v-on:dragend="adding=null">
           <div class="flex justify-between">
             <h3 class="font-bold overflow-x-auto">{{c.name}}</h3>
             <div class="relative group">
@@ -44,21 +49,29 @@
             </li>
           </ul>
         </div>
-
       </div>
+
     </div>
 
-    <div class="mt-24 w-full opacity-80">
-      <h2 v-on:drop="FILTERS.doc(dragging).update({disabled: true}); dragging=null" ondragover="return false" class="button-dull max-w-lg">Filters</h2>
-      <div class="flex mt-12 space-y-4">
-        <div class="flex -my-6">
-          <button class="button flex-1" @click="condition=false;newFilter=true">Add</button>
-        </div>
+    <div class="mt-12 w-full opacity-80">
 
-        <div class="rounded rounded-lg border border-gray p-4 mx-4 max-w-lg w-64" v-for="f in filters.filter( fil => fil.disabled)"
-             draggable="true" v-on:dragstart="dragging=f.id" v-on:drop="addCondition(f)" ondragover="return false">
+      <div v-on:drop="dragging?FILTERS.doc(dragging).update({disabled: true}):null; dragging=null" ondragover="return false" class="button-dull w-full flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 cursor-pointer" viewBox="0 0 20 20" fill="currentColor" @click="showFilters=!showFilters">
+          <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+        </svg>
+        <span class="mx-auto font-bold text-primary flex-1 cursor-pointer" @click="showFilters=!showFilters">Filters</span>
+        <button @click="condition=false;newFilter=true">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="flex mt-12 space-y-4" v-if="showFilters">
+        <div class="rounded rounded-lg border border-gray p-4 mx-4 max-w-lg" v-for="f in filters.filter( fil => fil.disabled)"
+             draggable="true" v-on:dragstart="dragging=f.id">
           <div class="flex justify-between">
-            <h3 class="overflow-x-auto">{{f.title}} {{f.id}}</h3>
+            <h3 class="overflow-x-auto">{{f.title}}</h3>
             <div class="relative group">
               <button>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -66,68 +79,71 @@
                 </svg>
               </button>
               <ul class="overflow-x-auto absolute ml-3 -mt-2 gradient p-2 rounded-b-xl rounded-r-xl invisible group-hover:visible">
-                <li @click="edit=f;newFilter=true;">Edit</li>
-                <li @click="removeFilter(f.id)">Delete</li>
-                <li @click="FILTERS.doc(dragging).update({disabled: false});">Active</li>
+                <li class="hover:bg-fore" @click="edit=f;newFilter=true;">Edit</li>
+                <li class="hover:bg-fore" @click="removeFilter(f.id)">Delete</li>
+                <li class="hover:bg-fore" @click="FILTERS.doc(dragging).update({disabled: false});">Active</li>
+                <li class="hover:bg-fore" @click="filling=!filling">Fill</li>
               </ul>
             </div>
           </div>
 
-          <ul class="bg-fore rounded-xl mt-2 w-full">
-            <li class="flex items-center justify-between mx-2 mt-1" v-for="(c, i) in f.conditions">
-              <div>
-                {{c.name}}
-              </div>
-              <button class="icon w-6 h-6 my-1" @click="updateConditions(f, i)">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="current" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </li>
-          </ul>
+          <div class="bg-fore rounded-xl p-2">
+            <button class="m-4" v-if="Object.keys(f.conditions).length<1" :class="{'text-primary': adding}"  v-on:drop="addCondition(f.id)" ondragover="return false">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
+              </svg>
+            </button>
+            <Conditions v-for="(c, i) in f.conditions" :cond="i" :condition="c" :conditions="conditions" :filter="f.id" :position="'conditions'" :adding="adding" :fill="filling"/>
+          </div>
 
-          <div>{{f.symbols}}</div>
+          <div class="overflow-y-auto max-h-96 mt-4">{{f.symbols}}</div>
         </div>
 
       </div>
     </div>
 
 
-    <div class="mt-24 w-full space-y-4">
-      <h2 v-on:drop="FILTERS.doc(dragging).update({disabled: false}); dragging=null" ondragover="return false" class="button-dull max-w-lg">Active</h2>
+    <div class="mt-12 w-full space-y-4">
+      <h2 v-on:drop="dragging?FILTERS.doc(dragging).update({disabled: false}):null; dragging=null" ondragover="return false" class="button-dull w-full flex items-center">
+        <button @click="refreshFilters()">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" v-bind:class="{'animate-spin': loading}" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+          </svg>
+        </button>
+        <span class="flex-1">Active</span>
+      </h2>
 
-      <div class="rounded rounded-lg border border-gray p-4 mx-4 max-w-lg w-64" v-for="f in filters.filter( fil => !fil.disabled)"
-           draggable="true" v-on:dragstart="dragging=f.id" v-on:drop="addCondition(f)" ondragover="return false">
-        <div class="flex justify-between">
-          <h3 class="overflow-x-auto">{{f.title}}</h3>
-          <div class="relative group">
-            <button>
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
-              </svg>
-            </button>
-            <ul class="overflow-x-auto absolute ml-3 -mt-2 gradient p-2 rounded-b-xl rounded-r-xl invisible group-hover:visible">
-              <li @click="edit=f;newFilter=true;">Edit</li>
-              <li @click="removeFilter(f.id)">Delete</li>
-              <li @click="FILTERS.doc(dragging).update({disabled: true});">Disable</li>
-            </ul>
-          </div>
-        </div>
-
-        <ul class="bg-fore rounded-xl mt-2 w-full">
-          <li class="flex items-center justify-between mx-2 mt-1" v-for="c in f.conditions">
-            <div>
-              {{c.name}}
+      <div class="flex flex-wrap">
+        <div class="rounded rounded-lg border border-gray p-4 mx-4 max-w-lg m-2" v-for="f in filters.filter( fil => !fil.disabled)"
+             draggable="true" v-on:dragstart="dragging=f.id">
+          <div class="flex justify-between">
+            <h3 class="overflow-x-auto">{{f.title}}</h3>
+            <div class="relative group">
+              <button>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                </svg>
+              </button>
+              <ul class="overflow-x-auto absolute ml-3 -mt-2 gradient p-2 rounded-b-xl rounded-r-xl invisible group-hover:visible">
+                <li class="hover:bg-fore" @click="edit=f;newFilter=true;">Edit</li>
+                <li class="hover:bg-fore" @click="removeFilter(f.id)">Delete</li>
+                <li class="hover:bg-fore" @click="FILTERS.doc(dragging).update({disabled: true});">Disable</li>
+                <li class="hover:bg-fore" @click="filling=!filling">Fill</li>
+              </ul>
             </div>
-            <button class="icon w-6 h-6 my-1" @click="FILTERS.doc(f.id).update({conditions: FIELD_VALUE.arrayRemove(c)})">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="current" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </div>
+
+          <div class="min-h-24 bg-fore rounded-xl p-2">
+            <button class="m-4" v-if="f.conditions.length<1" :class="{'text-primary': adding}"  v-on:drop="addCondition(f.id)" ondragover="return false">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
               </svg>
             </button>
-          </li>
-        </ul>
+            <Conditions v-for="(c, i) in f.conditions" :cond="i" :condition="c" :conditions="conditions" :filter="f.id" :position="'conditions'" :adding="adding" :fill="filling"/>
+          </div>
 
-        <div>{{f.symbols}}</div>
+          <div class="overflow-y-auto max-h-96 mt-4">{{f.symbols}}</div>
+        </div>
       </div>
     </div>
 
@@ -141,9 +157,11 @@
 
 <script>
 import Filter from "../components/Filter.vue";
+import Conditions from "../components/Conditions.vue";
+import axios from "axios";
 export default {
   name: "Home",
-  components: {Filter},
+  components: {Conditions, Filter},
   props: ['indicators', 'timeframes', 'data', 'user', 'filters', 'conditions'],
   data(){
     return {
@@ -154,6 +172,10 @@ export default {
       adding: null,
       edit: null,
       filter: null,
+      showConditions: false,
+      showFilters: false,
+      filling: true,
+      loading: false,
     }
   },
   methods: {
@@ -166,18 +188,14 @@ export default {
     getWH(){
       return window.location.origin + "/" + this.user.uid;
     },
+    refreshFilters(){
+      this.loading = true;
+      axios.post("/refresh").finally(() => this.loading = false)
+    },
     addCondition(filter){
-      if (this.adding){
-        this.filter = filter;
-        this.filter.conditions.push(this.adding)
-        this.scanFilter()
-        console.log('new symbols', this.filter.symbols)
-        this.FILTERS.doc(filter.id).update({
-          conditions: this.FIELD_VALUE.arrayUnion(this.adding),
-          symbols: this.filter.symbols
-        }).then(()=>this.adding=null)
-      }
-
+      if (!this.adding) return;
+      let path = "conditions." + this.adding;
+      this.FILTERS.doc(filter).update({[path]: null})
     },
     updateConditions(filter, index){
       this.filter = filter;

@@ -8,3 +8,5 @@ dist-ssr
 functions
 src/KEYS.js
 firestore.rules
+package-lock.json
+firestore.indexes.json

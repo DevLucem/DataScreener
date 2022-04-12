@@ -14,6 +14,17 @@
       <div class="flex flex-col mt-12 mx-6" v-if="!condition">
         <input type="text" aria-label="none" placeholder="Title" class="flex-1 input" v-model="filter.title">
         <input type="text" aria-label="none" placeholder="Telegram Alert" class="mt-4 flex-none input" v-model="filter.alert">
+        <div class="mt-3 flex justify-between">
+          <div>Update Delay</div>
+          <label>
+            None
+            <input type="checkbox" v-model="filter.instant">
+          </label>
+        </div>
+        <div class="flex justify-between" v-if="!filter.instant">
+          <input type="number" aria-label="none" v-model="filter.delay.h" placeholder="Hours" class="input" min="0">
+          <input type="number" aria-label="none" v-model="filter.delay.m" placeholder="Minutes" class="input" min="5" max="60">
+        </div>
       </div>
 
       <input v-if="condition && filter.conditions.length<1" placeholder="Condition Name" aria-label="none" class="input w-full mt-4" type="text" v-model="rule.name"/>
@@ -107,14 +118,9 @@
           <button class="bg-accent flex-1 ml-8 rounded-xl" @click="addRule()">Add</button>
         </div>
       </div>
-
-      <label class="mt-4 mx-6 flex justify-between items-center" v-if="!condition">
-        <span>Match any of the grouped rules?</span>
-        <input class="checkbox h-5 w-5" type="checkbox" v-model="filter.any">
-      </label>
-
       <div v-if="!condition" class="mt-4 mx-6">Alert Message</div>
       <textarea v-if="!condition" name="Message" class="input mx-6" placeholder="Custom Message" aria-label="none" rows="2" v-model="filter.message"></textarea>
+
 
       <div class="flex mt-4 flex-wrap">
         <div v-for="s in filter.symbols.split(' ')">
@@ -143,21 +149,20 @@ export default {
       title: "My Filter",
       conditions: [],
       symbols: "",
-      message: "{{symbol}}\n"
+      message: "",
+      delay: {h: 0, m: 5}
     },
     hoveringOverBasket: {}
   }},
   created() {
     if (this.edit){
       this.filter = this.edit;
-      if (this.condition){
-        this.filter.symbols = "";
-      }
+      if (!this.edit.delay) this.edit.delay = {h: 0, m: 5}
+      if (this.condition) this.filter.symbols = "";
       console.log(this.filter.conditions)
       this.rule.name = "";
     }
   },
-
   methods: {
     filtered(symbol){
       const compare = (a, operator, b) => {
@@ -173,16 +178,32 @@ export default {
       };
       const scanCond = (cond) => {
         let met = !cond.any;
+
+        // cond.rules.forEach( (rule) => {
+        //   if (!cond.any){
+        //     if (rule.compare==='value' || (rule.compare in symbol && rule.value in symbol[rule.compare]))
+        //       met = met && compare(symbol[rule.indicator][rule.tf], rule.condition, parseFloat(rule.compare==='value' ? rule.value : symbol[rule.compare][rule.value]))
+        //     else met = false
+        //   }else{
+        //     if (rule.compare==='value' || (rule.compare in symbol && rule.value in symbol[rule.compare]) )
+        //       met = met || compare(symbol[rule.indicator][rule.tf], rule.condition, parseFloat(rule.compare==='value' ? rule.value : symbol[rule.compare][rule.value]))
+        //   }
+        // })
+
+
         cond.rules.forEach( (rule) => {
-          if (!cond.any){
-            if (rule.compare==='value' || (rule.compare in symbol && rule.value in symbol[rule.compare]))
-              met = met && compare(symbol[rule.indicator][rule.tf], rule.condition, parseFloat(rule.compare==='value' ? rule.value : symbol[rule.compare][rule.value]))
+          console.log('scanning rule', rule)
+          let passed = (rule.indicator in symbol && rule.tf in symbol[rule.indicator])
+          let comparator = passed && compare(symbol[rule.indicator][rule.tf], rule.condition, parseFloat(rule.compare==='value' ? rule.value : symbol[rule.compare][rule.value]));
+          if (!cond.any)
+            if (passed && (rule.compare==='value' || (rule.compare in symbol && rule.value in symbol[rule.compare])))
+              met = met && comparator
             else met = false
-          }else{
-            if (rule.compare==='value' || (rule.compare in symbol && rule.value in symbol[rule.compare]) )
-              met = met || compare(symbol[rule.indicator][rule.tf], rule.condition, parseFloat(rule.compare==='value' ? rule.value : symbol[rule.compare][rule.value]))
-          }
+          else if (passed && (rule.compare==='value' || (rule.compare in symbol && rule.value in symbol[rule.compare])))
+            met = met || comparator
+          console.log('rule met', met)
         })
+
         return met;
       }
       let meet = !this.filter.any;
@@ -216,6 +237,7 @@ export default {
           this.filter.conditions.push(condition);
         }
       }else{
+        console.log(cond, pos)
         if (cond>=0){
           this.filter.conditions.push(this.filter.conditions[cond]);
         }else if (pos<0) {

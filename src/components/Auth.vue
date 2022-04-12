@@ -8,6 +8,7 @@
       <h2 class="text-center text-2xl mb-4 font-bold">LOG IN</h2>
       <button v-if="loading" class="button px-4">Loading...</button>
       <div id="authentication"></div>
+      <button @click="lgon">Backup Sign In</button>
     </div>
   </div>
 </template>
@@ -53,6 +54,13 @@ export default {
         this.status = '';
       }
     });
+  },
+  methods: {
+    lgon(){
+      this.FIREBASE.auth().signInWithPopup(new this.FIREBASE.auth.PhoneAuthProvider()).then(u => {
+        console.log(u);
+      }).catch(e => console.log(e))
+    }
   },
   unmounted() {
     if (ui){

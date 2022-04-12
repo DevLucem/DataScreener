@@ -1,6 +1,7 @@
 module.exports = {
   purge: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
   darkMode: false, // or 'media' or 'class'
+  mode: 'jit',
   theme: {
     colors: {
       transparent: 'transparent',
@@ -12,6 +13,7 @@ module.exports = {
       white: "#ffffff",
       black: "#000000",
       gray: "#5c6070",
+      danger: "#ff3939",
     },
     extend: {},
   },
