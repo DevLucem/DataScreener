@@ -72,7 +72,7 @@ export default {
           })
         if (!listen_conditions)
           listen_conditions = this.CONDITIONS.where("user", "==", user.uid).onSnapshot( docs => {
-            console.log(docs.size, 'conditions size', user.uid)
+            // console.log(docs.size, 'conditions size', user.uid)
             this.conditions = []; docs.forEach( doc => {
               this.conditions.push(doc.data())
             })

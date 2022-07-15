@@ -81,7 +81,7 @@
               <ul class="overflow-x-auto absolute ml-3 -mt-2 gradient p-2 rounded-b-xl rounded-r-xl invisible group-hover:visible">
                 <li class="hover:bg-fore" @click="edit=f;newFilter=true;">Edit</li>
                 <li class="hover:bg-fore" @click="removeFilter(f.id)">Delete</li>
-                <li class="hover:bg-fore" @click="FILTERS.doc(dragging).update({disabled: false});">Active</li>
+                <li class="hover:bg-fore" @click="FILTERS.doc(dragging).update({disabled: false, alerts: 0});">Active</li>
                 <li class="hover:bg-fore" @click="filling=!filling">Fill</li>
               </ul>
             </div>
@@ -93,7 +93,7 @@
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
               </svg>
             </button>
-            <Conditions v-for="(c, i) in f.conditions" :cond="i" :condition="c" :conditions="conditions" :filter="f.id" :position="'conditions'" :adding="adding" :fill="filling"/>
+            <Conditions v-for="(c, i) in f.conditions" :cond="i" :condition="c" :conditions="conditions" :filter="f.id" v-on:changed="scanFilter(f.id)" :position="'conditions'" :adding="adding" :fill="filling"/>
           </div>
 
           <div class="overflow-y-auto max-h-96 mt-4">{{f.symbols}}</div>
@@ -104,7 +104,7 @@
 
 
     <div class="mt-12 w-full space-y-4">
-      <h2 v-on:drop="dragging?FILTERS.doc(dragging).update({disabled: false}):null; dragging=null" ondragover="return false" class="button-dull w-full flex items-center">
+      <h2 v-on:drop="dragging?FILTERS.doc(dragging).update({disabled: false, alerts: 0}):null; dragging=null" ondragover="return false" class="button-dull w-full flex items-center">
         <button @click="refreshFilters()">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" v-bind:class="{'animate-spin': loading}" viewBox="0 0 20 20" fill="currentColor">
             <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
@@ -139,7 +139,7 @@
                 <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clip-rule="evenodd" />
               </svg>
             </button>
-            <Conditions v-for="(c, i) in f.conditions" :cond="i" :condition="c" :conditions="conditions" :filter="f.id" :position="'conditions'" :adding="adding" :fill="filling"/>
+            <Conditions v-for="(c, i) in f.conditions" :cond="i" :condition="c" :conditions="conditions" :filter="f.id" v-on:onchange="scanFilter(f.id)" :position="'conditions'" :adding="adding" :fill="filling"/>
           </div>
 
           <div class="overflow-y-auto max-h-96 mt-4">{{f.symbols}}</div>
@@ -149,7 +149,7 @@
 
 
     <div class="absolute top-0 w-full bg-back -mt-24 md:mt-0" v-if="newFilter">
-      <Filter :edit="edit" :condition="condition" v-on:close="newFilter=false; edit=null; condition=false" :user="user" :data="data" :timeframes="timeframes" :indicators="indicators"/>
+      <Filter :filters="filters" :edit="edit" :condition="condition" v-on:close="newFilter=false; edit=null; condition=false" :user="user" :data="data" :timeframes="timeframes" :indicators="indicators"/>
     </div>
 
   </div>
@@ -195,7 +195,7 @@ export default {
     addCondition(filter){
       if (!this.adding) return;
       let path = "conditions." + this.adding;
-      this.FILTERS.doc(filter).update({[path]: null})
+      this.FILTERS.doc(filter).update({[path]: null}).then(()=>this.scanFilter(filter))
     },
     updateConditions(filter, index){
       this.filter = filter;
@@ -225,11 +225,11 @@ export default {
         cond.rules.forEach( (rule) => {
           if (!cond.any){
             if (rule.compare==='value' || (rule.compare in symbol && rule.value in symbol[rule.compare]))
-              met = met && compare(symbol[rule.indicator][rule.tf], rule.condition, parseFloat(rule.compare==='value' ? rule.value : symbol[rule.compare][rule.value]))
+              met = met && compare(symbol[rule.indicator][rule.tf], rule.condition, (rule.compare==='value' ? rule.value : symbol[rule.compare][rule.value]))
             else met = false
           }else{
             if (rule.compare==='value' || (rule.compare in symbol && rule.value in symbol[rule.compare]) )
-              met = met || compare(symbol[rule.indicator][rule.tf], rule.condition, parseFloat(rule.compare==='value' ? rule.value : symbol[rule.compare][rule.value]))
+              met = met || compare(symbol[rule.indicator][rule.tf], rule.condition, (rule.compare==='value' ? rule.value : symbol[rule.compare][rule.value]))
           }
         })
         return met;
@@ -245,14 +245,93 @@ export default {
       // console.log(symbol.symbol, meet)
       return meet;
     },
-    scanFilter(){
-      this.filter.symbols = "";
-      if (this.filter.conditions.length<=0) return;
-      this.data.forEach(symbol => {
-        if (this.filtered(symbol))
-          this.filter.symbols += ' ' + symbol.symbol;
+    scanFilter(filter_id){
+
+      const compare = (a, operator, b) => {
+        switch (operator){
+          case "<": { return a < b; }
+          case ">": { return a > b; }
+          case ">=": { return a >= b; }
+          case "<=": { return a <= b; }
+          case "==": { return a === b; }
+          case "===": { return a === b; }
+          default: return false
+        }
+      };
+
+      let filter = this.filters.filter(f => filter_id===f.id)[0];
+
+      let symbols = this.data;
+      console.log('################################ updating', Object.keys(symbols).length)
+      Object.keys(symbols).forEach(symbol => {
+
+        let saved = symbols[symbol];
+        let added = filter.symbols.includes(saved.symbol);
+        console.log(added, filter.id)
+        let acknowledged = true;
+        if (filter.message){
+          if (filter.message.includes("//ignore")){
+            let syms = filter.message.split("//ignore")[1].toUpperCase()
+            if (syms.includes(saved.symbol)) acknowledged = false
+          }
+          if (filter.message.includes("//target")){
+            let syms = filter.message.split("//target")[1].toUpperCase()
+            if (!syms.includes(saved.symbol)) acknowledged = false
+          }
+        }
+
+        const checkCond = (cond) => {
+          let met = !cond.any;
+          if (!cond.disabled){
+            cond.rules.forEach( (rule) => {
+              console.log('scanning rule', rule.name)
+              let passed = (rule.indicator in saved && rule.tf in saved[rule.indicator])
+              let comparator = passed && compare(saved[rule.indicator][rule.tf], rule.condition, parseFloat(rule.compare==='value' ? rule.value : saved[rule.compare][rule.value]));
+              if (!cond.any)
+                if (passed && (rule.compare==='value' || (rule.compare in saved && rule.value in saved[rule.compare])))
+                  met = met && comparator
+                else met = false
+              else if (passed && (rule.compare==='value' || (rule.compare in saved && rule.value in saved[rule.compare])))
+                met = met || comparator
+              console.log('rule met', met)
+            })
+          }
+          return met;
+        }
+
+        if (filter.conditions && acknowledged){
+          const doFilter = (condition) => {
+            let met = false;
+            console.log('checking for condition', condition)
+            Object.keys(condition).forEach( val => {
+              if (!met){
+                let conds = this.conditions.filter(c => c.id===val);
+                console.log('found', conds)
+                let key_state = conds.length>0 ? checkCond(conds[0]) : false;
+                if (condition[val] && Object.keys(condition[val]).length>0 && key_state)
+                  key_state = key_state && doFilter(condition[val])
+                met = met || key_state;
+              }
+            })
+            return met;
+          }
+          let Xfilter = this.filters.filter(el => {return el.id === filter.watch})[0]
+          let meet = !filter.watch || (Xfilter && Xfilter.symbols.includes((saved.symbol)))
+          if (meet) meet = doFilter(filter.conditions)
+          console.log("Filter", filter.id, meet, added, saved.symbol)
+          if ( meet ? !added : added ){
+            // console.log("Filter", filter.id, meet, saved.symbol)
+            console.log('updating', filter.id, filter.name)
+            filter.symbols = meet ? `${filter.symbols} ${saved.symbol}` : (' ' + filter.symbols).replace(' ' + saved.symbol, '');
+            filter.symbols = filter.symbols.trim()
+            console.log(filter.symbols)
+          }
+        }
+
       })
-      console.log(this.filter)
+
+      this.FILTERS.doc(filter_id).update({symbols: filter.symbols})
+
     },
   }
 }

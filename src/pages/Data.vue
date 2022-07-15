@@ -71,8 +71,7 @@ export default {
         if (typeof s==='object'){
           if (indicator in s) {
             s[indicator] = this.FIELD_VALUE.delete()
-            delete s['indicators'];
-            batch.update(this.DATA.doc(s.symbol), s);
+            batch.update(this.DATA.doc(s.user + s.symbol), s);
           }
         }
       });
@@ -85,8 +84,8 @@ export default {
           let d = s[k];
           if (typeof d==='object'){
             if (timeframe in d) {
-              delete s[k][timeframe];
-              batch.update(this.DATA.doc(s.symbol), s);
+              s[k][timeframe] = this.FIELD_VALUE.delete()
+              batch.update(this.DATA.doc(s.user + s.symbol), s);
             }
           }
         })

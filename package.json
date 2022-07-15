@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && cd dist && move index.html ../functions && cd.. && firebase deploy",
+    "build": "vite build && cd dist && move index.html ../functions && cd.. && firebase deploy && push",
     "serve": "vite preview"
   },
   "dependencies": {

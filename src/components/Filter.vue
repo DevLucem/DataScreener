@@ -22,8 +22,12 @@
           </label>
         </div>
         <div class="flex justify-between" v-if="!filter.instant">
-          <input type="number" aria-label="none" v-model="filter.delay.h" placeholder="Hours" class="input" min="0">
-          <input type="number" aria-label="none" v-model="filter.delay.m" placeholder="Minutes" class="input" min="5" max="60">
+          <label>H:
+            <input type="number" aria-label="none" v-model="filter.delay.h" placeholder="Hours" class="input" min="0">
+          </label>
+          <label>M:
+            <input type="number" aria-label="none" v-model="filter.delay.m" placeholder="Minutes" class="input" min="5" max="60">
+          </label>
         </div>
       </div>
 
@@ -120,7 +124,18 @@
       </div>
       <div v-if="!condition" class="mt-4 mx-6">Alert Message</div>
       <textarea v-if="!condition" name="Message" class="input mx-6" placeholder="Custom Message" aria-label="none" rows="2" v-model="filter.message"></textarea>
+      <label class="flex justify-between mx-6 my-2 items-center" v-if="!condition">
+        Alerts Limit:
+        <input type="number" aria-label="none" v-model="filter.limit" placeholder="Limit" class="input" min="0">
+      </label>
 
+      <label class="flex mx-6 my-4 items-center" v-if="!condition">
+        Watch:
+        <select class="input ml-2 flex-1" v-model="filter.watch">
+          <option value="">None</option>
+          <option v-for="f in filters.filter(el => {return el.id !== filter.id})" :key="f.id" :value="f.id">{{f.title}}</option>
+        </select>
+      </label>
 
       <div class="flex mt-4 flex-wrap">
         <div v-for="s in filter.symbols.split(' ')">
@@ -139,7 +154,7 @@
 <script>
 export default {
   name: "Filter",
-  props: ['indicators', 'timeframes', 'data', 'edit', 'user', 'condition'],
+  props: ['indicators', 'timeframes', 'data', 'edit', 'user', 'condition', 'filters'],
   data(){return {
     rule: {
       compare: "value",
@@ -159,13 +174,15 @@ export default {
       this.filter = this.edit;
       if (!this.edit.delay) this.edit.delay = {h: 0, m: 5}
       if (this.condition) this.filter.symbols = "";
-      console.log(this.filter.conditions)
+      // console.log(this.filter.conditions)
       this.rule.name = "";
     }
+    console.log('Filters Length', this.filters)
   },
   methods: {
     filtered(symbol){
       const compare = (a, operator, b) => {
+        console.log('checking', a, operator, b)
         switch (operator){
           case '<': { return a < b; }
           case '>': { return a > b; }
@@ -192,16 +209,16 @@ export default {
 
 
         cond.rules.forEach( (rule) => {
-          console.log('scanning rule', rule)
           let passed = (rule.indicator in symbol && rule.tf in symbol[rule.indicator])
-          let comparator = passed && compare(symbol[rule.indicator][rule.tf], rule.condition, parseFloat(rule.compare==='value' ? rule.value : symbol[rule.compare][rule.value]));
+          console.log('scanning rule', passed, rule)
+          let comparator = passed && compare(symbol[rule.indicator][rule.tf], rule.condition, (rule.compare==='value' ? rule.value : symbol[rule.compare][rule.value]));
           if (!cond.any)
             if (passed && (rule.compare==='value' || (rule.compare in symbol && rule.value in symbol[rule.compare])))
               met = met && comparator
             else met = false
           else if (passed && (rule.compare==='value' || (rule.compare in symbol && rule.value in symbol[rule.compare])))
             met = met || comparator
-          console.log('rule met', met)
+          console.log('rule met', met, symbol.name)
         })
 
         return met;
@@ -248,6 +265,7 @@ export default {
           if ( (!this.rule.name || this.rule.name.length===0) && this.filter.conditions.length<1 ) return;
           let condition = this.rule.name ? {name: this.rule.name, rules: []} : this.filter.conditions.pop()
           // this.rule.name = ""; todo removed not to reset
+          if (this.rule.compare==='value') this.rule.value = isNaN(this.rule.value) ? this.rule.value.trim() : parseFloat(this.rule.value)
           condition.rules.push(this.rule)
           this.filter.conditions.push(condition)
         }else this.filter.symbols = "";

@@ -15,7 +15,7 @@
 
     </div>
     <div v-if="condition && Object.keys(condition).length>0">
-      <Conditions v-for="(c, i) in condition" :cond="i" :condition="c" :conditions="conditions" :deleting="deleting" :filter="filter" :position="position+'.'+cond" :adding="adding"/>
+      <Conditions v-for="(c, i) in condition" v-on:changed="sendUpdate()" :cond="i" :condition="c" :conditions="conditions" :deleting="deleting" :filter="filter" :position="position+'.'+cond" :adding="adding"/>
     </div>
   </div>
 </template>
@@ -30,12 +30,16 @@ export default {
       let path = this.position;
       if (and) path += "." + this.cond + "." + this.adding
       else path += "." + this.adding
-      this.FILTERS.doc(this.filter).update({[path]: null})
+      this.FILTERS.doc(this.filter).update({[path]: null}).then(()=>this.sendUpdate())
     },
     deleteCondition(){
       let path = this.position + "." + this.cond
       console.log(path)
-      this.FILTERS.doc(this.filter).update({[path]: this.FIELD_VALUE.delete()})
+      this.FILTERS.doc(this.filter).update({[path]: this.FIELD_VALUE.delete()}).then(()=>this.sendUpdate())
+    },
+    sendUpdate(){
+      console.log('making changes')
+      this.$emit('changed')
     }
   }
 }
